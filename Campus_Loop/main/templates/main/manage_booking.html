@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Booking - {{ booking.item.title }}{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+
+<!-- Manage Booking Header -->
+<section class="manage-header text-center text-white py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Manage Booking</h1>
+        <p class="lead mb-0">Respond to booking request</p>
+    </div>
+</section>
+
+<!-- Manage Booking Section -->
+<section class="manage-booking-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-gear text-primary"></i>
+                            Manage: {{ booking.item.title }}
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Booking Details -->
+                        <div class="booking-details mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <img src="{{ booking.item.image.url }}" class="img-fluid rounded" alt="{{ booking.item.title }}">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5 class="card-title">{{ booking.item.title }}</h5>
+                                    <p class="card-text text-muted">{{ booking.item.description|truncatewords:30 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-primary fs-4">৳{{ booking.item.price }}</span>
+                                        <span class="badge bg-secondary">{{ booking.item.category }}</span>
+                                    </div>
+                                    
+                                    <!-- Buyer Information -->
+                                    <div class="buyer-info mt-3 p-3 bg-light rounded">
+                                        <h6 class="mb-2">
+                                            <i class="bi bi-person-circle"></i> Buyer Information
+                                        </h6>
+                                        <p class="mb-1">
+                                            <strong>Name:</strong> {{ booking.buyer.get_full_name|default:booking.buyer.username }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <strong>Email:</strong> {{ booking.buyer.email }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <strong>Requested:</strong> {{ booking.created_at|date:"M d, Y g:i A" }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Buyer Message -->
+                                    {% if booking.message %}
+                                        <div class="buyer-message mt-3 p-3 bg-info bg-opacity-10 rounded">
+                                            <h6 class="mb-2">
+                                                <i class="bi bi-chat-dots"></i> Message from Buyer
+                                            </h6>
+                                            <p class="mb-0">{{ booking.message }}</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Status -->
+                        <div class="status-info mb-4">
+                            <div class="alert alert-info">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-info-circle"></i> Current Status
+                                </h6>
+                                <span class="badge 
+                                    {% if booking.status == 'pending' %}bg-warning
+                                    {% elif booking.status == 'accepted' %}bg-success
+                                    {% elif booking.status == 'rejected' %}bg-danger
+                                    {% elif booking.status == 'completed' %}bg-primary
+                                    {% elif booking.status == 'cancelled' %}bg-secondary
+                                    {% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        {% if booking.status == 'pending' %}
+                            <div class="action-buttons">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-lightning"></i> Take Action
+                                </h6>
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="accept" class="btn btn-success me-2">
+                                        <i class="bi bi-check-circle"></i> Accept Booking
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn btn-danger me-2">
+                                        <i class="bi bi-x-circle"></i> Reject Booking
+                                    </button>
+                                </form>
+                            </div>
+                        {% elif booking.status == 'accepted' %}
+                            <div class="action-buttons">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-lightning"></i> Take Action
+                                </h6>
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="complete" class="btn btn-primary me-2">
+                                        <i class="bi bi-check2-all"></i> Mark as Completed
+                                    </button>
+                                    <button type="submit" name="action" value="cancel" class="btn btn-warning">
+                                        <i class="bi bi-x-circle"></i> Cancel Booking
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .manage-header {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border: none;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+    
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        border: none;
+        color: #212529;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+    
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        color: #212529;
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        background: transparent;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .booking-details img {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .buyer-info, .buyer-message {
+        border-radius: 8px;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Booking - Admin{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-cart-check"></i> Manage Booking</h4>
+                </div>
+                <div class="card-body">
+                    <h5>{{ booking.item.title }}</h5>
+                    <p class="mb-1"><strong>Buyer:</strong> {{ booking.buyer.get_full_name|default:booking.buyer.username }} ({{ booking.buyer.email }})</p>
+                    <p class="mb-1"><strong>Seller:</strong> {{ booking.seller.get_full_name|default:booking.seller.username }} ({{ booking.seller.email }})</p>
+                    <p class="mb-1"><strong>Price:</strong> ৳{{ booking.item.price }}</p>
+                    <p class="mb-1"><strong>Status:</strong> <span class="badge bg-{{ booking.status }}">{{ booking.get_status_display }}</span></p>
+                    <p class="mb-1"><strong>Date:</strong> {{ booking.created_at|date:"M d, Y H:i" }}</p>
+                    <p class="mb-3"><strong>Message:</strong> {{ booking.message|default:"No message" }}</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if booking.status == 'pending' %}
+                                <button name="action" value="accept" class="btn btn-success" type="submit"><i class="bi bi-check-circle"></i> Accept</button>
+                                <button name="action" value="reject" class="btn btn-danger" type="submit"><i class="bi bi-x-circle"></i> Reject</button>
+                            {% elif booking.status == 'accepted' %}
+                                <button name="action" value="complete" class="btn btn-primary" type="submit"><i class="bi bi-check2-all"></i> Complete</button>
+                                <button name="action" value="cancel" class="btn btn-warning" type="submit"><i class="bi bi-x-circle"></i> Cancel</button>
+                            {% else %}
+                                <span class="text-muted">No actions available</span>
+                            {% endif %}
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary ms-auto"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

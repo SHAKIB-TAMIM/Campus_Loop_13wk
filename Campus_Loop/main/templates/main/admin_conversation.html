@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Admin Conversation: {{ user1.get_full_name|default:user1.username }} & {{ user2.get_full_name|default:user2.username }}{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            {% if error %}
+            <div class="alert alert-danger text-center my-4">
+                <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-chat-dots"></i> Conversation
+                        <span class="ms-2">{{ user1.get_full_name|default:user1.username }} &amp; {{ user2.get_full_name|default:user2.username }}</span>
+                        {% if item %}
+                        <span class="badge bg-info ms-2">Item: {{ item.title }}</span>
+                        <a href="{% url 'admin_conversation' user1.id user2.id %}" class="btn btn-sm btn-secondary ms-2">View All</a>
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="messages-container" style="min-height:300px;">
+                        {% for message in messages %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{% if message.sender == user1 %}{{ user1.get_full_name|default:user1.username }}{% else %}{{ user2.get_full_name|default:user2.username }}{% endif %}</strong>
+                                        <span class="text-muted small">to</span>
+                                        <strong>{% if message.receiver == user1 %}{{ user1.get_full_name|default:user1.username }}{% else %}{{ user2.get_full_name|default:user2.username }}{% endif %}</strong>
+                                        <span class="text-muted small ms-2">{{ message.timestamp|date:"M d, Y H:i" }}</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ message.id }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
+                                <div class="p-2 bg-light rounded border mt-1" style="white-space: pre-wrap; max-height: 300px; overflow: auto;">
+                                    {{ message.content|linebreaksbr }}
+                                </div>
+                            </div>
+                            
+                            <!-- Edit Modal for each message -->
+                            <div class="modal fade" id="editModal{{ message.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ message.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editModalLabel{{ message.id }}">Edit Message</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="edit_message" value="1">
+                                            <input type="hidden" name="message_id" value="{{ message.id }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="new_content{{ message.id }}" class="form-label">Message Content:</label>
+                                                    <textarea 
+                                                        class="form-control" 
+                                                        id="new_content{{ message.id }}" 
+                                                        name="new_content" 
+                                                        rows="6" 
+                                                        required
+                                                    >{{ message.content }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="text-center">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

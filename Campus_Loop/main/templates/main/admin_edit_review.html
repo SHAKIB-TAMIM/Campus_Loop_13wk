@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Edit Review - Admin{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-star"></i> Edit Review</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h6>Review Preview:</h6>
+                <div class="border rounded p-3 bg-light">
+                    <strong>{{ review.name }}</strong> <span class="text-muted">({{ review.department }} - {{ review.level_term }})</span><br>
+                    <span class="text-secondary">{{ review.created_at|date:"M d, Y H:i" }}</span>
+                    <p class="mt-2">{{ review.comment }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

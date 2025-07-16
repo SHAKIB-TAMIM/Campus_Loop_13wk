@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Academic Resources - Admin{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="dashboard-card">
+        <div class="card-header bg-info bg-opacity-25">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-text text-info"></i> Manage Academic Resources</h4>
+        </div>
+        <div class="card-body">
+            {% if resources %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Department</th>
+                            <th>Course</th>
+                            <th>Semester</th>
+                            <th>Uploaded</th>
+                            <th>Approved?</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resource in resources %}
+                        <tr>
+                            <td>{{ resource.title }}</td>
+                            <td>{{ resource.get_resource_type_display }}</td>
+                            <td>{{ resource.get_department_display }}</td>
+                            <td>{{ resource.get_course_display|default:resource.course }}</td>
+                            <td>{{ resource.get_semester_display|default:resource.semester }}</td>
+                            <td>{{ resource.uploaded_by.get_full_name|default:resource.uploaded_by.username }}</td>
+                            <td>
+                                {% if resource.is_approved %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">No</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ resource.uploaded_at|date:"M d, Y H:i" }}</td>
+                              
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-emoji-smile text-info" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2">No resources found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

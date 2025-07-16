@@ -1,0 +1,635 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Feed {% endblock %}
+{% include "navber.html" %}
+{% block content %}
+
+    <br><br>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success mt-3">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Hero Section -->
+    <section class="container hero-section container-fluid d-flex align-items-center justify-content-between">
+        <div class="container text-start col-lg-6">
+            <h1 class="hero-heading">Buy, Sell & Share - <span class="herocolor">Empowering Students Together</span></h1>
+            <p class="hero-subheading">A student-led marketplace for exchanging secondhand items and sharing academic resources within your university community.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'browse' %}" class="btn btn-primary me-3">Browse Items</a>
+                
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="{% static 'main/images/pic.jpeg' %}" alt="Students working" class="hero-image" width="100%" height=auto>
+        </div>
+    </section>
+
+
+     <!-- Search  Section -->
+
+
+     <section class="py-5 bg-white">
+        <div class="container">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h2 class="h4 text-center mb-4">What are you looking for today?</h2>
+                <form class="d-flex gap-2" onsubmit="handleSearch(event)">
+                    <!-- Input Field with Autocomplete -->
+                    <div class="autocomplete flex-grow-1">
+                        <input 
+                            type="text" 
+                            placeholder="Search for books, electronics, notes, etc." 
+                            class="form-control"
+                            id="searchQuery" 
+                            autocomplete="off"
+                        />
+                        <div class="autocomplete-items" id="autocompleteResults"></div>
+                    </div>
+                    <!-- Search Button -->
+                    <button type="submit" class="btn btn-primary d-flex align-items-center">
+                        <i class="bi bi-search me-2"></i> Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+
+<!--Catagories-->
+    <div class="container text-center my-5">
+        <h2 class="section-heading feed_category">Categories</h2><br>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <a href="{% url 'books' %}" class="text-decoration-none text-dark">
+                  <div class="card category-card p-4">
+                    <div class="icon-box">📚</div>
+                    <h5>Books</h5>
+                  </div>
+                </a>
+              </div>
+          <div class="col-md-3">
+            <a href="{% url 'lab_tools' %}"class="text-decoration-none text-dark">
+            <div class="card category-card p-4">
+              <div class="icon-box">🔬</div>
+              <h5>Lab Tools</h5>
+            </div>
+            </a>
+            
+          </div>
+          <div class="col-md-3">
+            <a href="{% url 'accessories' %}"class="text-decoration-none text-dark">
+            <div class="card category-card p-4">
+              <div class="icon-box">🎒</div>
+              <h5>Accessories</h5>
+            </div>
+            </a>
+          </div>
+          <div class="col-md-3">
+            <a href="{% url 'resources' %}"class="text-decoration-none text-dark">
+            <div class="card category-card p-4">
+              <div class="icon-box">📦</div>
+              <h5>Resources</h5>
+            </div>
+          </div>
+        </div>
+         </a>
+      </div>
+
+<!-- Category Items Sections -->
+<!-- <div class="container my-5">
+    {% if books_items %}
+    <div class="category-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">📚 Latest Books</h3>
+            <a href="{% url 'books' %}" class="btn btn-outline-primary">View All Books</a>
+        </div>
+        <div class="row g-4">
+            {% for item in books_items %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card item-card h-100">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ item.title }}</h6>
+                        <p class="card-text text-muted small">{{ item.description|truncatewords:10 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary">৳{{ item.price }}</span>
+                                <span class="badge bg-{% if item.condition == 'Like New' %}success{% elif item.condition == 'Good' %}warning{% else %}secondary{% endif %}">
+                                    {{ item.condition }}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                {% if user.is_authenticated and user != item.user %}
+                                    <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Book
+                                    </a>
+                                {% elif user.is_authenticated and user == item.user %}
+                                    <span class="btn btn-secondary btn-sm flex-fill disabled">Your Item</span>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Login
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <small class="text-muted">
+                            <i class="bi bi-person"></i> {{ item.user.get_full_name|default:item.user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    {% if lab_tools_items %}
+    <div class="category-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">🔬 Latest Lab Tools</h3>
+            <a href="{% url 'lab_tools' %}" class="btn btn-outline-primary">View All Lab Tools</a>
+        </div>
+        <div class="row g-4">
+            {% for item in lab_tools_items %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card item-card h-100">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ item.title }}</h6>
+                        <p class="card-text text-muted small">{{ item.description|truncatewords:10 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary">৳{{ item.price }}</span>
+                                <span class="badge bg-{% if item.condition == 'Like New' %}success{% elif item.condition == 'Good' %}warning{% else %}secondary{% endif %}">
+                                    {{ item.condition }}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                {% if user.is_authenticated and user != item.user %}
+                                    <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Book
+                                    </a>
+                                {% elif user.is_authenticated and user == item.user %}
+                                    <span class="btn btn-secondary btn-sm flex-fill disabled">Your Item</span>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Login
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <small class="text-muted">
+                            <i class="bi bi-person"></i> {{ item.user.get_full_name|default:item.user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    {% if accessories_items %}
+    <div class="category-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">🎒 Latest Accessories</h3>
+            <a href="{% url 'accessories' %}" class="btn btn-outline-primary">View All Accessories</a>
+        </div>
+        <div class="row g-4">
+            {% for item in accessories_items %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card item-card h-100">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ item.title }}</h6>
+                        <p class="card-text text-muted small">{{ item.description|truncatewords:10 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary">৳{{ item.price }}</span>
+                                <span class="badge bg-{% if item.condition == 'Like New' %}success{% elif item.condition == 'Good' %}warning{% else %}secondary{% endif %}">
+                                    {{ item.condition }}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                {% if user.is_authenticated and user != item.user %}
+                                    <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Book
+                                    </a>
+                                {% elif user.is_authenticated and user == item.user %}
+                                    <span class="btn btn-secondary btn-sm flex-fill disabled">Your Item</span>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Login
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <small class="text-muted">
+                            <i class="bi bi-person"></i> {{ item.user.get_full_name|default:item.user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    {% if others_items %}
+    <div class="category-section mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">📦 Latest Other Items</h3>
+            <a href="{% url 'browse' %}" class="btn btn-outline-primary">View All Items</a>
+        </div>
+        <div class="row g-4">
+            {% for item in others_items %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card item-card h-100">
+                    <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ item.title }}</h6>
+                        <p class="card-text text-muted small">{{ item.description|truncatewords:10 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary">৳{{ item.price }}</span>
+                                <span class="badge bg-{% if item.condition == 'Like New' %}success{% elif item.condition == 'Good' %}warning{% else %}secondary{% endif %}">
+                                    {{ item.condition }}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                {% if user.is_authenticated and user != item.user %}
+                                    <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Book
+                                    </a>
+                                {% elif user.is_authenticated and user == item.user %}
+                                    <span class="btn btn-secondary btn-sm flex-fill disabled">Your Item</span>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-cart-plus"></i> Login
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <small class="text-muted">
+                            <i class="bi bi-person"></i> {{ item.user.get_full_name|default:item.user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div> -->
+
+    <!-- How It Works Section -->
+    <section class="how-it-works-section">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="row">
+                <!-- First Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="bi bi-search"></i> <!-- Search icon from Bootstrap Icons -->
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Find What You Need</h5>
+                            <p class="card-text">Browse through categories or search for specific items and resources that you need.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="bi bi-book"></i> <!-- Book icon from Bootstrap Icons -->
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Connect & Exchange</h5>
+                            <p class="card-text">Contact the seller or resource provider directly and arrange for the exchange.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third Card -->
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="bi bi-file-earmark"></i> <!-- File icon from Bootstrap Icons -->
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Share Your Own</h5>
+                            <p class="card-text">List your secondhand items or upload your notes to help other students.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+  
+  <!-- ✅ Review Section -->
+<!-- ✅ Review Section (Connected to Backend) -->
+<div id="review-section" class="container text-center my-5">
+
+
+    <!-- Recent Reviews Carousel -->
+    {% if recent_reviews %}
+    <div class="reviews-carousel-section mb-5">
+        <h4 class="text-muted mb-4">What Our Community Says</h4>
+        <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-inner">
+                {% for review in recent_reviews %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="review-card">
+                            <div class="review-content">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <h5 class="reviewer-name">{{ review.name }}</h5>
+                                        <div class="reviewer-badges">
+                                            <span class="badge bg-primary">{{ review.department }}</span>
+                                            <span class="badge bg-info">{{ review.level_term }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="review-rating">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
+                                </div>
+                                <div class="review-text">
+                                    <p>"{{ review.comment }}"</p>
+                                </div>
+                                <div class="review-date">
+                                    <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Carousel Controls -->
+            {% if recent_reviews|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            
+            <!-- Carousel Indicators -->
+            <div class="carousel-indicators">
+                {% for review in recent_reviews %}
+                    <button type="button" data-bs-target="#reviewsCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                            class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Review {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Review Form Section -->
+    {% if user_can_review %}
+        <div class="review-form-section">
+            <h4 class="mb-4">Share Your Experience</h4>
+    <form method="POST" class="row g-3 justify-content-center">
+      {% csrf_token %}
+      <div class="col-md-6">
+                {{ form.name.label_tag }}
+        {{ form.name }}
+        {% if form.name.errors %}
+          <div class="text-danger">{{ form.name.errors }}</div>
+        {% endif %}
+      </div>
+              <div class="col-md-3">
+                {{ form.department.label_tag }}
+                {{ form.department }}
+                {% if form.department.errors %}
+                  <div class="text-danger">{{ form.department.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-3">
+                {{ form.level_term.label_tag }}
+                {{ form.level_term }}
+                {% if form.level_term.errors %}
+                  <div class="text-danger">{{ form.level_term.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="col-12">
+                {{ form.comment.label_tag }}
+        {{ form.comment }}
+        {% if form.comment.errors %}
+          <div class="text-danger">{{ form.comment.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+                <!-- <a href="{% url 'see_reviews' %}" class="btn btn-secondary ms-2">See All Reviews</a> -->
+      </div>
+    </form>
+  </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h5><i class="bi bi-info-circle"></i> Review Access Required</h5>
+            <p class="mb-3">To leave a review, you need to have completed transactions on the platform.</p>
+            
+            {% if user_as_buyer or user_as_seller %}
+                <p class="text-muted small">You have some transaction history, but no completed transactions yet.</p>
+            {% else %}
+                <p class="text-muted small">Start by booking items or posting your own items for sale.</p>
+            {% endif %}
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'browse' %}" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Browse Items
+                </a>
+                <a href="{% url 'post_item' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> Post an Item
+                </a>
+                <a href="#review-section" class="btn btn-outline-secondary">
+                    <i class="bi bi-eye"></i> See Reviews
+                </a>
+            </div>
+        </div>
+    {% endif %}
+  </div>
+
+<style>
+/* Reviews Carousel Styling */
+.reviews-carousel-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px;
+    padding: 40px 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.review-card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.reviewer-info {
+    flex: 1;
+}
+
+.reviewer-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.reviewer-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.reviewer-badges .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+.review-rating {
+    font-size: 1.1rem;
+}
+
+.review-text {
+    margin-bottom: 15px;
+}
+
+.review-text p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #495057;
+    font-style: italic;
+    margin: 0;
+}
+
+.review-date {
+    text-align: right;
+}
+
+/* Carousel Controls */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px;
+    height: 50px;
+    background: rgba(80, 150, 225, 0.8);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+}
+
+.carousel-control-prev {
+    left: -25px;
+}
+
+.carousel-control-next {
+    right: -25px;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+    bottom: -40px;
+}
+
+.carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    border: none;
+    margin: 0 4px;
+}
+
+.carousel-indicators button.active {
+    background-color: #5096e1;
+}
+
+/* Review Form Section */
+.review-form-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .review-card {
+        padding: 20px;
+        margin: 0 10px;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .reviewer-badges {
+        justify-content: flex-start;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .carousel-control-prev {
+        left: -20px;
+    }
+    
+    .carousel-control-next {
+        right: -20px;
+    }
+}
+</style>
+{% endblock %}

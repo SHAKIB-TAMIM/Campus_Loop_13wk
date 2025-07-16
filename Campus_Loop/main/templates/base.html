@@ -1,0 +1,703 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}My Site{% endblock %}</title>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    {% comment %} Navber part {% endcomment %}
+    .navbar-nav .nav-link {
+        color: rgb(77, 77, 77) !important;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        color: #0077ff !important;
+    }
+    
+    .signup{
+        color: #fff;
+        background-color: rgb(75,163 ,227);
+        margin-left: 20px;
+    }
+    
+    .log{
+        border:1px solid rgb(235, 235, 235);
+        font-weight: 500;
+        
+    }
+    .log:hover {
+        background-color:#86d1f4;
+    }
+    
+    .nav-link{
+        margin-right: 20px;
+    }
+    
+    .navbar-brand{
+        font-weight: bold;
+    }
+    
+    .sii:hover{
+        background-color: #5096e1;
+        color: white;
+    }
+
+
+{% comment %} Academic part {% endcomment %}
+    .academic-header{
+        background-color: #03a9f4;
+    }
+    .upload-resources{
+        background-color: #03a9f4;
+    }
+
+
+{% comment %} About part {% endcomment %}
+    .about-hero{
+      background-color: #03a9f4;
+  }
+  
+{% comment %} Browse part {% endcomment %}
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f8fb;
+}
+.page-title {
+  text-align: center;
+  margin: 30px 0;
+  color: navy;
+  font-weight: bold;
+}
+.search-bar {
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+.item-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 15px;
+}
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+.btn-buy {
+  background-color: #03a9f4;
+  color: white;
+  font-weight: 600;
+}
+.btn-buy:hover {
+  background-color: #009acd;
+}
+.page-title{
+    color: #1e293b;
+}
+
+
+{% comment %} Contact part {% endcomment %}
+.header-section {
+  background-color: #03a9f4;
+  color: white;
+  text-align: center;
+}
+        .contact-section {
+            padding: 60px 0;
+            background-color: #f8f9fa;
+        }
+        .contact-info {
+            margin-bottom: 10px;
+        }
+        .contact-info h2 {
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .contact-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .contact-info li {
+            margin-bottom: 15px;
+        }
+        .contact-info strong {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .contact-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .contact-form h2 {
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .form-control, .form-select {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .btn-submit {
+            background-color: #03a9f4;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .btn-submit:hover {
+            background-color: #20b9ff;
+            color: #fff;
+        }
+        hr {
+            margin: 40px 0;
+            border-top: 1px solid #dee2e6;
+        }
+    .faq-card {
+      border: 1px solid #e3e8f1;
+      border-radius: 0.75rem;
+      transition: border-color .2s;
+    }
+    .faq-card:hover {
+      border-color: #cbd5e1;
+    }
+{% comment %} Feed part {% endcomment %}
+.hero-section {
+  padding: 100px 0;
+}
+.feed_category{
+  font-weight: bold;
+}
+.hero-heading {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.hero-subheading {
+  font-size: 1.25rem;
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.hero-buttons {
+  margin-top: 30px;
+}
+
+.hero-image {
+  max-width: 100%;
+  border-radius: 20px;
+}
+
+.btn-primary {
+  background-color: #4895e8;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 30px;
+  font-size: 16px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #f8f9fa;
+  border: 1px solid gray;
+  color: black;
+  border-radius: 8px;
+  padding: 12px 30px;
+  font-size: 16px;
+}
+
+.btn-secondary:hover {
+  background-color: rgb(75,163 ,227);
+  color: #fff;
+}
+
+.herocolor{
+  color: rgb(75,163 ,227);
+}
+.category-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.category-part{
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 0px 30px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.category-part h2{
+  font-weight: bold;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+}
+
+.category-icon {
+  font-size: 40px;
+  color: #4f83cc;
+  margin-bottom: 15px;
+}
+
+.category-title a{
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.category-card-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding-top: 20px;
+  flex-wrap: nowrap; /* Ensure all cards stay in a single row */
+}
+
+.category-card-container .col {
+  flex: 1;
+  max-width: 23%; /* Ensure cards don't overflow */
+}
+
+.how-it-works-section {
+  padding: 50px 0;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+.how-it-works-section h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+.card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+}
+.card-icon {
+  font-size: 50px;
+  color: #4f83cc;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-weight: bold;
+  margin-bottom: 15px;
+  font-size: 1.25rem;
+}
+.card-text {
+  font-size: 1rem;
+  color: #666;
+}
+.join-section {
+  background-color: rgb(75, 163, 227); /* RGB color from previous analysis */
+  padding: 50px 0;
+  text-align: center;
+  color: white;
+}
+.join-section h2{
+  font-weight: bold;
+}
+.join-section .btn {
+  background-color: #ffffff;
+  color: rgb(75, 163, 227); /* Same blue as the background */
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+.join-section .btn:hover {
+  background-color: rgb(75, 163, 227);
+  color: white;
+}
+.list-unstyled{
+  color: #b0b0b0;
+}
+  body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+  }
+
+  .hero-heading {
+      font-size: 3rem;
+      font-weight: 700;
+      animation: fadeInDown 1s ease-in-out;
+  }
+
+  .herocolor {
+      color: #0d6efd;
+  }
+
+  .hero-subheading {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+  }
+
+  .btn {
+      transition: all 0.3s ease-in-out;
+  }
+
+  .btn:hover {
+      transform: scale(1.05);
+  }
+
+  .category-part .category-card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      justify-items: center;
+  }
+
+  .category-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out;
+      cursor: pointer;
+  }
+
+  .category-card:hover {
+      transform: translateY(-10px);
+      background-color: #e9f5ff;
+  }
+
+  .category-icon {
+      font-size: 2rem;
+      color: #0d6efd;
+      margin-bottom: 10px;
+  }
+
+  .how-it-works-section .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease-in-out;
+  }
+
+  .how-it-works-section .card:hover {
+      transform: scale(1.03);
+      background-color: #f0f8ff;
+  }
+
+  .card-icon {
+      font-size: 2rem;
+      color: #0d6efd;
+      text-align: center;
+      margin-top: 20px;
+  }
+
+  @keyframes fadeInDown {
+      from {
+          opacity: 0;
+          transform: translateY(-20px);
+      }
+      to {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  .join-section {
+  background-color: rgb(75, 163, 227); /* RGB color from previous analysis */
+  padding: 50px 0;
+  text-align: center;
+  color: white;
+}
+.join-section h2{
+  font-weight: bold;
+}
+.join-section .btn {
+  background-color: #ffffff;
+  color: rgb(75, 163, 227); /* Same blue as the background */
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+.join-section .btn:hover {
+  background-color: rgb(75, 163, 227);
+  color: white;
+}
+.autocomplete {
+  position: relative;
+}
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-top: none;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.autocomplete-item {
+  padding: 10px;
+  cursor: pointer;
+}
+.autocomplete-item:hover {
+  background-color: #f1f1f1;
+}
+
+{% comment %} post Item {% endcomment %}
+.form-container {
+  max-width: 700px;
+  margin: 50px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+.form-title {
+  color: rgb(54, 54, 54);
+  text-align: center;
+  margin-bottom: 30px;
+}
+.form-label {
+  font-weight: 500;
+}
+.form-control, .form-select {
+  border-radius: 8px;
+}
+.btn-submit {
+  background-color: #5096e1;
+  color: white;
+  border-radius: 30px;
+  font-weight: 600;
+}
+.btn-submit:hover {
+  background-color: #009acd;
+}
+#preview {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 15px;
+  display: none;
+}
+.post{
+    font-weight: bold;
+}
+
+{% comment %} Footer part {% endcomment %}
+    .footer {
+      background-color: #1e293b; 
+      color: #cbd5e1;            
+    }
+    .footer a {
+      color: #cbd5e1;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #ffffff;
+    }
+    .footer .bi {
+      vertical-align: -.125em;
+    }
+  </style>
+</head>
+<body>
+<!-- Navber -->
+    {% include "navber.html" %}
+
+    <!-- Body Content -->
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Brand & Social -->
+        <div class="col-md-3 mb-4">
+          <h5 class="text-white mb-3 fw-bold">
+            <i class="bi bi-book me-2 fs-4 fw-bold"></i>Campus Loop
+          </h5>
+          <p>
+            A platform for university students to exchange secondhand items and share academic resources.
+          </p>
+          <div>
+            <a href="#" class="me-3 fs-5"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="me-3 fs-5"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="fs-5"><i class="bi bi-instagram"></i></a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-3 mb-4">
+          <h5 class="text-white mb-3 fw-semibold">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="{% url 'home' %}">Home</a></li>
+            <li class="mb-2"><a href="{% url 'about' %}">About Us</a></li>
+            <li class="mb-2"><a href="{% url 'browse' %}">Browse</a></li>
+            <li class="mb-2"><a href="{% url 'contact' %}">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Categories -->
+        <div class="col-md-3 mb-4">
+          <h5 class="text-white mb-3 fw-semibold">Categories</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="{% url 'books' %}">Books &amp; Textbooks</a></li>
+            <li class="mb-2"><a href="{% url 'lab_tools' %}">Lab Tools</a></li>
+            <li class="mb-2"><a href="{% url 'accessories' %}">Accessories</a></li>
+            <li><a href="{% url 'resources' %}">Resources</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-md-3 mb-4">
+          <h5 class="text-white mb-3 fw-semibold">Contact Us</h5>
+          <p class="mb-2">University Campus, Building 5</p>
+          <p class="mb-2">Email: <a href="mailto:info@campusloop.edu">info@campusloop.edu</a></p>
+          <p class="mb-0">Phone: (+08) 1997-151571</p>
+        </div>
+      </div>
+
+      <hr class="border-light">
+
+      <p class="text-center mb-0">&copy; 2025 Campus Loop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+  function filterItems() {
+  const input = document.getElementById('searchInput').value.toLowerCase();
+  const items = document.querySelectorAll('.item');
+
+  items.forEach(item => {
+    const titleEl = item.querySelector('.card-title');
+    const categoryEl = item.querySelector('.card-text');
+
+    const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+    const category = categoryEl ? categoryEl.textContent.toLowerCase() : '';
+
+    if (title.includes(input) || category.includes(input)) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+  window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#item-')) {
+          const element = document.getElementById(hash.substring(1));
+          if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+              element.style.boxShadow = '0 0 10px yellow';
+              
+              // Optional: Remove highlight after 3 seconds
+              setTimeout(() => {
+                  element.style.boxShadow = '';
+              }, 3000);
+          }
+      }
+  });
+
+{% comment %} Feed part {% endcomment %}
+AOS.init({
+  duration: 1000,
+  once: true
+});
+</script>
+<script>
+let currentFocus;
+
+document.getElementById("searchQuery").addEventListener("input", function(e) {
+  const query = this.value;
+  if (query.length < 2) {
+      closeAllLists();
+      return;
+  }
+  
+  fetch(`/search/?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(data => {
+          const resultsContainer = document.getElementById("autocompleteResults");
+          resultsContainer.innerHTML = '';
+          
+          data.forEach(item => {
+              const div = document.createElement("div");
+              div.className = "autocomplete-item";
+              div.innerHTML = `<strong>${item.title}</strong>`;
+              div.addEventListener("click", function() {
+                  window.location.href = item.url;
+              });
+              resultsContainer.appendChild(div);
+          });
+      });
+});
+
+function closeAllLists() {
+  const items = document.getElementsByClassName("autocomplete-items");
+  for (let i = 0; i < items.length; i++) {
+      items[i].innerHTML = '';
+  }
+}
+
+document.addEventListener("click", function(e) {
+  closeAllLists();
+});
+
+function handleSearch(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchQuery").value;
+  if (query) {
+      window.location.href = `/browse/?q=${encodeURIComponent(query)}`;
+  }
+}
+
+function previewImageFile(event) {
+  const file = event.target.files[0];
+  const img = document.getElementById('preview');
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    img.style.display = 'none';
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ category }} - Campus Loop{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+
+<!-- Category Hero Section -->
+<section class="category-hero bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'browse' %}" class="text-decoration-none">Browse</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ category }}</li>
+                    </ol>
+                </nav>
+                <h1 class="display-4 fw-bold text-primary mb-3">{{ category }}</h1>
+                <p class="lead text-muted mb-4">{{ category_description }}</p>
+                <div class="d-flex gap-3">
+                    <span class="badge bg-primary fs-6">{{ items.count }} items available</span>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'post_item' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Post {{ category|lower }} Item
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="category-icon">
+                    {% if category == 'Books' %}
+                        <i class="bi bi-book display-1 text-primary"></i>
+                    {% elif category == 'Lab Tools' %}
+                        <i class="bi bi-tools display-1 text-primary"></i>
+                    {% elif category == 'Accessories' %}
+                        <i class="bi bi-laptop display-1 text-primary"></i>
+                    {% else %}
+                        <i class="bi bi-box display-1 text-primary"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Content -->
+<section class="category-content py-5">
+    <div class="container">
+        {% if items %}
+            <!-- Filter and Sort Options -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <select class="form-select" style="max-width: 200px;">
+                            <option>Sort by: Latest</option>
+                            <option>Price: Low to High</option>
+                            <option>Price: High to Low</option>
+                            <option>Condition</option>
+                        </select>
+                        <button class="btn btn-outline-secondary">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active">
+                            <i class="bi bi-grid"></i> Grid
+                        </button>
+                        <button type="button" class="btn btn-outline-primary">
+                            <i class="bi bi-list"></i> List
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Grid -->
+            <div class="row g-4">
+                {% for item in items %}
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="card h-100 item-card">
+                            <div class="position-relative">
+                                <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.title }}">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-{% if item.condition == 'Like New' %}success{% elif item.condition == 'Good' %}warning{% else %}secondary{% endif %}">
+                                        {{ item.condition }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ item.title }}</h5>
+                                <p class="card-text text-muted">{{ item.description|truncatewords:15 }}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-primary fs-5">৳{{ item.price }}</span>
+                                        <small class="text-muted">{{ item.created_at|date:"M d" }}</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        {% if user.is_authenticated and user != item.user %}
+                                            <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-sm flex-fill">
+                                                <i class="bi bi-cart-plus"></i> Book Item
+                                            </a>
+                                        {% elif user.is_authenticated and user == item.user %}
+                                            <span class="btn btn-secondary btn-sm flex-fill disabled">Your Item</span>
+                                        {% else %}
+                                            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                                <i class="bi bi-cart-plus"></i> Login to Book
+                                            </a>
+                                        {% endif %}
+                                        <button class="btn btn-outline-secondary btn-sm" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <small class="text-muted">
+                                    <i class="bi bi-person"></i> {{ item.user.get_full_name|default:item.user.username }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if items.has_other_pages %}
+                <nav aria-label="Category pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if items.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ items.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in items.paginator.page_range %}
+                            {% if items.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > items.number|add:'-3' and num < items.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if items.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ items.next_page_number }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-box display-1 text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No {{ category|lower }} items found</h3>
+                    <p class="text-muted mb-4">Be the first to post a {{ category|lower }} item!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'post_item' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Post {{ category|lower }} Item
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Login to Post
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Related Categories -->
+<section class="related-categories py-5 bg-light">
+    <div class="container">
+        <h3 class="text-center mb-4">Explore Other Categories</h3>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="{% url 'category_books' %}" class="text-decoration-none">
+                    <div class="card text-center h-100 category-link">
+                        <div class="card-body">
+                            <i class="bi bi-book display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Books</h5>
+                            <p class="card-text text-muted">Textbooks & Study Materials</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'category_lab_tools' %}" class="text-decoration-none">
+                    <div class="card text-center h-100 category-link">
+                        <div class="card-body">
+                            <i class="bi bi-tools display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Lab Tools</h5>
+                            <p class="card-text text-muted">Equipment & Instruments</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'category_accessories' %}" class="text-decoration-none">
+                    <div class="card text-center h-100 category-link">
+                        <div class="card-body">
+                            <i class="bi bi-laptop display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Accessories</h5>
+                            <p class="card-text text-muted">Gadgets & Accessories</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'category_others' %}" class="text-decoration-none">
+                    <div class="card text-center h-100 category-link">
+                        <div class="card-body">
+                            <i class="bi bi-box display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Others</h5>
+                            <p class="card-text text-muted">Miscellaneous Items</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .category-hero {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .category-icon {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .item-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .item-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .item-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .category-link {
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+    }
+    
+    .category-link:hover {
+        border-color: #03a9f4;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(3, 169, 244, 0.15);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+    
+    .btn-group .btn {
+        border-radius: 8px;
+    }
+    
+    .btn-group .btn.active {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+        border-color: #03a9f4;
+    }
+    
+    .empty-state {
+        padding: 3rem 0;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        color: #212529;
+    }
+    
+    .badge.bg-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+    }
+</style>
+
+{% endblock %} 

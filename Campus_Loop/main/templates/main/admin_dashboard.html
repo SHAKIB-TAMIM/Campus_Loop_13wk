@@ -1,0 +1,841 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Admin Dashboard - Campus Loop{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="admin-dashboard">
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-speedometer2"></i> Admin Dashboard
+                    </h1>
+                    <p class="dashboard-subtitle">Manage your Campus Loop platform</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="admin-info">
+                        <span class="admin-name">{{ user.username|default:user.username }}</span>
+                        <small class="text-muted">Administrator</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Users Stats -->
+                <div class="col-md-3">
+                    <div class="stat-card users-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">{{ total_users }}</h3>
+                            <p class="stat-label">Total Users</p>
+                            <small class="stat-change text-success">
+                                +{{ new_users_week }} this week
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Stats -->
+                <div class="col-md-3">
+                    <div class="stat-card items-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-box"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">{{ total_items }}</h3>
+                            <p class="stat-label">Total Items</p>
+                            <small class="stat-change text-warning">
+                                {{ pending_items }} pending
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bookings Stats -->
+                <div class="col-md-3">
+                    <div class="stat-card bookings-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-cart-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">{{ total_bookings }}</h3>
+                            <p class="stat-label">Total Bookings</p>
+                            <small class="stat-change text-info">
+                                {{ pending_bookings }} pending
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Stats -->
+                <div class="col-md-3">
+                    <div class="stat-card reviews-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">{{ total_reviews }}</h3>
+                            <p class="stat-label">Total Reviews</p>
+                            <small class="stat-change text-primary">
+                                +{{ recent_reviews_count }} this week
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Posts Section -->
+    <div class="container mb-5">
+        <div class="dashboard-card">
+            <div class="card-header bg-warning bg-opacity-25">
+                <h5 class="mb-0"><i class="bi bi-hourglass-split text-warning"></i> Pending Posts for Approval</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_posts %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Posted By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in pending_posts %}
+                            <tr>
+                                <td style="width: 80px;">
+                                    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-thumbnail" style="max-width: 60px; max-height: 60px;">
+                                </td>
+                                <td>{{ post.title }}</td>
+                                <td>{{ post.category }}</td>
+                                <td>{{ post.user.get_full_name|default:post.user.username }}</td>
+                                <td>{{ post.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'admin_approve_item' post.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'admin_reject_item' post.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to reject and delete this post?')">
+                                            <i class="bi bi-x-circle"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-emoji-smile text-success" style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2">No pending posts! All items are approved.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- End Pending Posts Section -->
+
+    <!-- Pending Academic Resources Section -->
+    <div class="container mb-5">
+        <div class="dashboard-card">
+            <div class="card-header bg-info bg-opacity-25">
+                <h5 class="mb-0"><i class="bi bi-hourglass-split text-info"></i> Pending Academic Resources for Approval</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_resources_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Department</th>
+                                <th>Course</th>
+                                <th>Uploaded By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resource in pending_resources_list %}
+                            <tr>
+                                <td>{{ resource.title }}</td>
+                                <td>{{ resource.get_resource_type_display }}</td>
+                                <td>{{ resource.get_department_display }}</td>
+                                <td>{{ resource.get_course_display|default:resource.course }}</td>
+                                <td>{{ resource.uploaded_by.get_full_name|default:resource.uploaded_by.username }}</td>
+                                <td>{{ resource.uploaded_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'dashboard_approve_resource' resource.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'dashboard_reject_resource' resource.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to reject and delete this resource?')">
+                                            <i class="bi bi-x-circle"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-emoji-smile text-info" style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2">No pending resources! All resources are approved.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- End Pending Academic Resources Section -->
+
+   
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Recent Activity -->
+                <div class="col-lg-8">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-activity"></i> Recent Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="activityTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="items-tab" data-bs-toggle="tab" data-bs-target="#items" type="button" role="tab">
+                                        Items ({{ recent_items|length }})
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab">
+                                        Bookings ({{ recent_bookings|length }})
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                        Reviews ({{ recent_reviews|length }})
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab">
+                                        Contact ({{ recent_messages|length }})
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content mt-3" id="activityTabsContent">
+                                <!-- Recent Items -->
+                                <div class="tab-pane fade show active" id="items" role="tabpanel">
+                                    {% for item in recent_items %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-box"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6>{{ item.title }}</h6>
+                                            <p class="text-muted mb-1">{{ item.user.get_full_name|default:item.user.username }} • {{ item.category }}</p>
+                                            <small class="text-muted">{{ item.created_at|date:"M d, Y H:i" }}</small>
+                                        </div>
+                                        <div class="activity-status">
+                                            <span class="badge {% if item.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                                                {% if item.is_approved %}Approved{% else %}Pending{% endif %}
+                                            </span>
+                                            {% if not item.is_approved %}
+                                            <div class="action-buttons mt-2">
+                                                <a href="{% url 'admin_approve_item' item.id %}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-circle"></i> Approve
+                                                </a>
+                                                <a href="{% url 'admin_reject_item' item.id %}" class="btn btn-sm btn-danger" 
+                                                   onclick="return confirm('Are you sure you want to reject and delete this item?')">
+                                                    <i class="bi bi-x-circle"></i> Reject
+                                                </a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No recent items</p>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Recent Bookings -->
+                                <div class="tab-pane fade" id="bookings" role="tabpanel">
+                                    {% for booking in recent_bookings %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-cart-check"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6>{{ booking.item.title }}</h6>
+                                            <p class="text-muted mb-1">{{ booking.buyer.get_full_name|default:booking.buyer.username }} → {{ booking.seller.get_full_name|default:booking.seller.username }}</p>
+                                            <small class="text-muted">{{ booking.created_at|date:"M d, Y H:i" }}</small>
+                                        </div>
+                                        <div class="activity-status">
+                                            <span class="badgeb bg-{{ booking.status }}">
+                                                {{ booking.get_status_display }}
+                                            </span>
+                                            <div class="action-buttons mt-2">
+                                                <a href="{% url 'admin_manage_booking' booking.id %}" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-gear"></i> Manage
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No recent bookings</p>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Recent Reviews -->
+                                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                    {% for review in recent_reviews %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-star"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6>{{ review.name }}</h6>
+                                            <p class="text-muted mb-1">{{ review.department }} • {{ review.level_term }}</p>
+                                            <small class="text-muted">{{ review.created_at|date:"M d, Y H:i" }}</small>
+                                            <div>{{ review.comment|truncatewords:20 }}</div>
+                                        </div>
+                                        <div class="activity-status">
+                                            <span class="badge bg-primary">Review</span>
+                                            <div class="action-buttons mt-2">
+                                                <a href="{% url 'admin_edit_review' review.id %}" class="btn btn-sm btn-info">
+                                                    <i class="bi bi-eye"></i> View/Edit
+                                                </a>
+                                                <form method="post" action="{% url 'admin_delete_review' review.id %}" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?')">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No recent reviews</p>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Recent Messages -->
+                                <div class="tab-pane fade" id="messages" role="tabpanel">
+                                    {% for message in recent_messages %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-envelope"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6>{{ message.name }}</h6>
+                                            <p class="text-muted mb-1">{{ message.subject }} • {{ message.email }}</p>
+                                            <small class="text-muted">{{ message.sent_at|date:"M d, Y H:i" }}</small>
+                                            <div class="mt-1">{{ message.message|truncatewords:15 }}</div>
+                                        </div>
+                                        <div class="activity-status">
+                                            <span class="badge bg-info">Contact</span>
+                                            <div class="action-buttons mt-2">
+                                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#messageModal{{ message.id }}">
+                                                    <i class="bi bi-eye"></i> View
+                                                </button>
+                                                <form method="post" action="{% url 'admin_delete_message' message.id %}" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Modal for viewing full message -->
+                                    <div class="modal fade" id="messageModal{{ message.id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ message.id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="messageModalLabel{{ message.id }}">Message from {{ message.name }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <strong>Name:</strong> {{ message.name }}
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Email:</strong> {{ message.email }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-12">
+                                                            <strong>Subject:</strong> {{ message.subject }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-12">
+                                                            <strong>Date:</strong> {{ message.sent_at|date:"F d, Y H:i" }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <strong>Message:</strong>
+                                                            <div class="mt-2 p-3 bg-light rounded">
+                                                                {{ message.message|linebreaks }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <form method="post" action="{% url 'admin_delete_message' message.id %}" style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this message?')">
+                                                            <i class="bi bi-trash"></i> Delete Message
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No recent messages</p>
+                                    {% endfor %}
+                                    
+                                    {% if recent_messages %}
+                                    <div class="text-center mt-3">
+                                        <a href="{% url 'admin_manage_messages' %}" class="btn btn-outline-primary">
+                                            <i class="bi bi-envelope"></i> View All Messages
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Recent User-to-User Messages (Inbox) -->
+                                <div class="tab-pane fade" id="user-inbox" role="tabpanel">
+                                    <h5 class="mb-3">Recent Inbox Messages</h5>
+                                    {% for msg in recent_user_messages %}
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-envelope"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6>From: {{ msg.sender.get_full_name|default:msg.sender.username }}</h6>
+                                            <h6>To: {{ msg.receiver.get_full_name|default:msg.receiver.username }}</h6>
+                                            <p class="text-muted mb-1">{{ msg.content|truncatewords:15 }}</p>
+                                            <small class="text-muted">{{ msg.timestamp|date:"M d, Y H:i" }}</small>
+                                        </div>
+                                        <div class="activity-status">
+                                            {% if msg.item %}
+                                            <a href="{% url 'admin_conversation_item' msg.sender.id msg.receiver.id msg.item.id %}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-chat-dots"></i> View Inbox
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'admin_conversation' msg.sender.id msg.receiver.id %}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-chat-dots"></i> View Inbox
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No recent inbox messages</p>
+                                    {% endfor %}
+                                </div>
+                                <!-- End Recent User-to-User Messages (Inbox) -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Stats -->
+                <div class="col-lg-4">
+                    <!-- Quick Actions -->
+                    <div class="dashboard-card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <a href="{% url 'admin_manage_items' %}" class="btn btn-outline-primary w-100 mb-2" title="Manage all items in custom admin dashboard">
+                                    <i class="bi bi-box"></i> Manage Items
+                                </a>
+                                <a href="{% url 'admin_manage_resources' %}" class="btn btn-outline-info w-100 mb-2" title="Manage all resources in custom admin dashboard">
+                                    <i class="bi bi-file-earmark-text"></i> Manage Resources
+                                </a>
+                                <a href="{% url 'admin_manage_reviews' %}" class="btn btn-outline-warning w-100 mb-2" title="Manage all contact messages in custom admin dashboard">
+                                    <i class="bi bi-star"></i> Manage Reviews
+                                </a>
+                                <a href="{% url 'admin_manage_messages' %}" class="btn btn-outline-secondary w-100 mb-2" title="Manage all contact messages in custom admin dashboard">
+                                    <i class="bi bi-envelope"></i> Manage Contact
+                                </a>
+                                <a href="{% url 'admin_manage_user_messages' %}" class="btn btn-outline-success w-100 mb-2" title="View all user-to-user messages">
+                                    <i class="bi bi-inbox"></i> View Messages
+                                </a>
+                                <a href="{% url 'admin_manage_users' %}" class="btn btn-outline-dark w-100" title="Manage all users in custom admin dashboard">
+                                    <i class="bi bi-people"></i> Manage Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Summary -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-graph-up"></i> Platform Stats</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="stats-summary">
+                                <div class="stat-row">
+                                    <span>Approved Items:</span>
+                                    <span class="stat-value">{{ approved_items }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Pending Items:</span>
+                                    <span class="stat-value text-warning">{{ pending_items }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Approved Bookings:</span>
+                                    <span class="stat-value text-success">{{ accepted_bookings }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Pending Bookings:</span>
+                                    <span class="stat-value text-warning">{{ pending_bookings }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Approved Resources:</span>
+                                    <span class="stat-value">{{ approved_resources }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Pending Resources:</span>
+                                    <span class="stat-value text-warning">{{ pending_resources }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>New Users (Week):</span>
+                                    <span class="stat-value text-success">{{ new_users_week }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Recent Reviews (Week):</span>
+                                    <span class="stat-value text-primary">{{ recent_reviews_count }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+.badgeb{
+    color: rgb(255, 213, 0);
+    font-weight: bold;
+}
+/* Admin Dashboard Styling */
+.admin-dashboard {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #5096e1 0%, #4a90e2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.dashboard-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.admin-info {
+    text-align: right;
+}
+
+.admin-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: block;
+}
+
+/* Statistics Cards */
+.stats-section {
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.users-card .stat-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.items-card .stat-icon {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
+}
+
+.bookings-card .stat-icon {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.reviews-card .stat-icon {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.stat-change {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f8f9fa;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.action-buttons .btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+}
+
+.action-buttons .btn i {
+    font-size: 0.6rem;
+}
+
+/* Activity Items */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.activity-item:hover {
+    background-color: #f8f9fa;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5096e1 0%, #4a90e2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-content h6 {
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.activity-content p {
+    margin-bottom: 5px;
+    font-size: 0.875rem;
+}
+
+.activity-status {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.activity-status .badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.6em;
+}
+
+/* Quick Actions */
+.quick-actions .btn {
+    text-align: left;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.quick-actions .btn:hover {
+    transform: translateX(5px);
+}
+
+/* Stats Summary */
+.stats-summary .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.stats-summary .stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 2rem;
+    }
+    
+    .stat-card {
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .admin-info {
+        text-align: left;
+        margin-top: 15px;
+    }
+}
+</style>
+
+{% endblock %} 

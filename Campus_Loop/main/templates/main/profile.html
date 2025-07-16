@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Profile {% endblock %}
+{% include "navber.html" %}
+{% block content %}
+    <br><br>
+    <!-- Profile Hero Section -->
+    <header class="profile-hero bg-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="fw-bold">{{ user.get_full_name|default:user.username }}!</h1>
+                <p class="lead mb-1">{{ user_profile.department|default:"Department not set" }}</p>
+                <p class="text-muted">{{ user_profile.university|default:"University not set" }}</p>
+                <div class="d-flex gap-2 mb-3">
+                    {% if user.is_staff %}
+                    <span class="badge bg-danger">👑 ADMIN</span>
+                    {% else %}
+                    <span class="badge bg-primary">Verified Student</span>
+                    {% endif %}
+                    <span class="badge bg-secondary">Member since {{ user.date_joined|date:"Y" }}</span>
+                </div>
+                <div class="d-flex gap-3">
+                    <div>
+                        <h5 class="mb-0">{{ user_posts.count }}</h5>
+                        <small class="text-muted">Items Posted</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">{{ user_bookings.count }}</h5>
+                        <small class="text-muted">Items Booked</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">{{ received_bookings.count }}</h5>
+                        <small class="text-muted">Bookings Received</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                {% if user.is_staff %}
+                <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-danger">
+                        <i class="bi bi-shield-check me-1"></i> Admin Dashboard
+                    </a>
+                    <a href="{% url 'post_item' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Post New Item
+                    </a>
+                </div>
+                {% else %}
+                <a href="{% url 'post_item' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Post New Item
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Profile Content -->
+<section class="profile-content py-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts" type="button" role="tab">My Posts</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" type="button" role="tab">My Bookings</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Personal Info</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content py-4" id="profileTabsContent">
+            <!-- My Posts Tab -->
+            <div class="tab-pane fade show active" id="posts" role="tabpanel">
+                <h3 class="mb-4">My Listed Items</h3>
+                <div class="row g-4">
+                    {% for post in user_posts %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+              <div class="badge position-absolute m-2 {% if post.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                {% if post.is_approved %}Approved{% else %}Pending{% endif %}
+              </div>
+              <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.description|truncatewords:20 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-primary">৳{{ post.price }}</span>
+                  <small class="text-muted">{{ post.created_at|date:"M d, Y" }}</small>
+                </div>
+              </div>
+              <div class="card-footer bg-white d-flex justify-content-between">
+                <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i> Delete
+                </a>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted">You have not posted any items yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+            <!-- My Bookings Tab -->
+            <div class="tab-pane fade" id="bookings" role="tabpanel">
+                <div class="row">
+                    <!-- My Bookings (as buyer) -->
+                    <div class="col-lg-6">
+                        <h4 class="mb-4">
+                            <i class="bi bi-cart-check text-primary"></i> My Bookings
+                        </h4>
+                        {% if user_bookings %}
+                            <div class="row g-3">
+                                {% for booking in user_bookings %}
+                                    <div class="col-12">
+                                        <div class="card booking-card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <img src="{{ booking.item.image.url }}" class="img-fluid rounded" alt="{{ booking.item.title }}">
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <h6 class="card-title">{{ booking.item.title }}</h6>
+                                                        <p class="card-text text-muted">{{ booking.item.description|truncatewords:15 }}</p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="fw-bold text-primary">৳{{ booking.item.price }}</span>
+                                                            <span class="badge 
+                                                                {% if booking.status == 'pending' %}bg-warning
+                                                                {% elif booking.status == 'accepted' %}bg-success
+                                                                {% elif booking.status == 'rejected' %}bg-danger
+                                                                {% elif booking.status == 'completed' %}bg-primary
+                                                                {% elif booking.status == 'cancelled' %}bg-secondary
+                                                                {% endif %}">
+                                                                {{ booking.get_status_display }}
+                                                            </span>
+                                                        </div>
+                                                        <small class="text-muted">Booked on {{ booking.created_at|date:"M d, Y" }}</small>
+                                                        {% if booking.status == 'pending' %}
+                                                            <div class="mt-2">
+                                                                <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm btn-outline-danger">
+                                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                        <div class="mt-2">
+                                                               <a href="{% url 'book_item' booking.item.id %}" class="btn btn-sm btn-outline-primary">
+                                                                     <i class="bi bi-eye"></i> View Item
+                                                                 </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-cart-x display-4 text-muted"></i>
+                                <p class="text-muted mt-2">You haven't booked any items yet.</p>
+                                <a href="{% url 'browse' %}" class="btn btn-primary">Browse Items</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Received Bookings (as seller) -->
+                    <div class="col-lg-6">
+                        <h4 class="mb-4">
+                            <i class="bi bi-inbox text-success"></i> Received Bookings
+                        </h4>
+                        {% if received_bookings %}
+                            <div class="row g-3">
+                                {% for booking in received_bookings %}
+                                    <div class="col-12">
+                                        <div class="card booking-card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <img src="{{ booking.item.image.url }}" class="img-fluid rounded" alt="{{ booking.item.title }}">
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <h6 class="card-title">{{ booking.item.title }}</h6>
+                                                        <p class="card-text text-muted">{{ booking.item.description|truncatewords:15 }}</p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="fw-bold text-primary">৳{{ booking.item.price }}</span>
+                                                            <span class="badge 
+                                                                {% if booking.status == 'pending' %}bg-warning
+                                                                {% elif booking.status == 'accepted' %}bg-success
+                                                                {% elif booking.status == 'rejected' %}bg-danger
+                                                                {% elif booking.status == 'completed' %}bg-primary
+                                                                {% elif booking.status == 'cancelled' %}bg-secondary
+                                                                {% endif %}">
+                                                                {{ booking.get_status_display }}
+                                                            </span>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            Requested by {{ booking.buyer.get_full_name|default:booking.buyer.username }}
+                                                        </small>
+                                                        {% if booking.status == 'pending' %}
+                                                            <div class="mt-2">
+                                                                <a href="{% url 'manage_booking' booking.id %}" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="bi bi-gear"></i> Manage
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox display-4 text-muted"></i>
+                                <p class="text-muted mt-2">No booking requests received yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personal Info Tab -->
+            <div class="tab-pane fade" id="info" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Personal Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ profile_form.first_name.label }}</label>
+                                            {{ profile_form.first_name }}
+                                            {% if profile_form.first_name.errors %}
+                                                <div class="text-danger small">{{ profile_form.first_name.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ profile_form.last_name.label }}</label>
+                                            {{ profile_form.last_name }}
+                                            {% if profile_form.last_name.errors %}
+                                                <div class="text-danger small">{{ profile_form.last_name.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ profile_form.email.label }}</label>
+                                        {{ profile_form.email }}
+                                        {% if profile_form.email.errors %}
+                                            <div class="text-danger small">{{ profile_form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ profile_form.university.label }}</label>
+                                        {{ profile_form.university }}
+                                        {% if profile_form.university.errors %}
+                                            <div class="text-danger small">{{ profile_form.university.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ profile_form.department.label }}</label>
+                                        {{ profile_form.department }}
+                                        {% if profile_form.department.errors %}
+                                            <div class="text-danger small">{{ profile_form.department.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ profile_form.phone_number.label }}</label>
+                                        {{ profile_form.phone_number }}
+                                        {% if profile_form.phone_number.errors %}
+                                            <div class="text-danger small">{{ profile_form.phone_number.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ profile_form.id_card.label }}</label>
+                                        {{ profile_form.id_card }}
+                                        {% if profile_form.id_card.errors %}
+                                            <div class="text-danger small">{{ profile_form.id_card.errors.0 }}</div>
+                                        {% endif %}
+                                        {% if user_profile.id_card %}
+                                            <div class="mt-2">
+                                                <small class="text-muted">Current ID Card: 
+                                                    <a href="{{ user_profile.id_card.url }}" target="_blank">View Current ID Card</a>
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <button type="submit" name="update_profile" class="btn btn-primary">Update Information</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Change Password</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ password_form.current_password.label }}</label>
+                                        {{ password_form.current_password }}
+                                        {% if password_form.current_password.errors %}
+                                            <div class="text-danger small">{{ password_form.current_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ password_form.new_password1.label }}</label>
+                                        {{ password_form.new_password1 }}
+                                        {% if password_form.new_password1.errors %}
+                                            <div class="text-danger small">{{ password_form.new_password1.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ password_form.new_password2.label }}</label>
+                                        {{ password_form.new_password2 }}
+                                        {% if password_form.new_password2.errors %}
+                                            <div class="text-danger small">{{ password_form.new_password2.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
+                                </form>
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .profile-hero {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 500;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+        color: white;
+        border: none;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background: rgba(3, 169, 244, 0.1);
+        color: #03a9f4;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary {
+        color: #03a9f4;
+        border: 2px solid #03a9f4;
+        background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+        border-color: #03a9f4;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545;
+        border: 2px solid #dc3545;
+        background: transparent;
+    }
+    
+    .btn-outline-danger:hover {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border-color: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        color: #212529;
+    }
+    
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+    
+    .alert-error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+    
+    .booking-card {
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .booking-card img {
+        border-radius: 8px;
+        object-fit: cover;
+        height: 80px;
+        width: 100%;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        color: #212529;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    }
+    
+    .badge.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    }
+    
+    .badge.bg-primary {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%) !important;
+    }
+    
+    .badge.bg-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+    }
+</style>
+{% endblock %}

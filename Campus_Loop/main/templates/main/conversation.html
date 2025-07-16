@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Conversation with {{ other_user.get_full_name|default:other_user.username }} - Campus Loop{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Conversation Header -->
+            <div class="conversation-header mb-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'inbox' %}" class="btn btn-outline-secondary me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div class="user-avatar me-3">
+                            <i class="bi bi-person-circle fs-1 text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">{{ other_user.get_full_name|default:other_user.username }}</h5>
+                            {% if item %}
+                                <p class="mb-0 text-muted small">
+                                    <i class="bi bi-tag me-1"></i>{{ item.title }}
+                                </p>
+                            {% else %}
+                                <p class="mb-0 text-muted small">
+                                    <i class="bi bi-chat me-1"></i>General conversation
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if item %}
+                        <div class="item-preview">
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-thumbnail">
+                            <div class="item-info">
+                                <small class="text-muted">৳{{ item.price }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %} mb-3">
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <p class="mb-1">{{ message.content }}</p>
+                                    <small class="text-muted">
+                                        {{ message.timestamp|date:"M d, g:i A" }}
+                                        {% if message.sender == request.user %}
+                                            {% if message.is_read %}
+                                                <i class="bi bi-check2-all text-primary ms-1"></i>
+                                            {% else %}
+                                                <i class="bi bi-check2 text-muted ms-1"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="empty-conversation">
+                            <i class="bi bi-chat-dots display-4 text-muted mb-3"></i>
+                            <p class="text-muted">No messages yet. Start the conversation!</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Message Input Form -->
+            <div class="message-input-container">
+                <form method="post" class="message-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <textarea 
+                            name="content" 
+                            class="form-control message-input" 
+                            placeholder="Type your message..." 
+                            rows="2"
+                            required
+                        ></textarea>
+                        <button type="submit" class="btn btn-primary send-btn">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .conversation-header {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .user-avatar {
+        flex-shrink: 0;
+    }
+    
+    .item-preview {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .item-thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+    }
+    
+    .messages-container {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        min-height: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-bottom: 1rem;
+    }
+    
+    .message {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    
+    .message-sent {
+        justify-content: flex-end;
+    }
+    
+    .message-received {
+        justify-content: flex-start;
+    }
+    
+    .message-content {
+        max-width: 70%;
+    }
+    
+    .message-bubble {
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        position: relative;
+    }
+    
+    .message-sent .message-bubble {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message-received .message-bubble {
+        background: #f8f9fa;
+        color: #212529;
+        border: 1px solid #e9ecef;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .message-bubble p {
+        margin-bottom: 0.25rem;
+        word-wrap: break-word;
+    }
+    
+    .message-bubble small {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+    
+    .message-input-container {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .message-form {
+        margin: 0;
+    }
+    
+    .message-input {
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        resize: none;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .message-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .send-btn {
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.5rem;
+    }
+    
+    .empty-conversation {
+        opacity: 0.6;
+    }
+    
+    /* Scrollbar styling */
+    .messages-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    
+    @media (max-width: 768px) {
+        .conversation-header {
+            padding: 1rem;
+        }
+        
+        .messages-container {
+            padding: 1rem;
+            min-height: 300px;
+        }
+        
+        .message-content {
+            max-width: 85%;
+        }
+        
+        .message-bubble {
+            padding: 0.5rem 0.75rem;
+        }
+    }
+</style>
+
+<script>
+    // Auto-scroll to bottom of messages
+    document.addEventListener('DOMContentLoaded', function() {
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+    
+    // Auto-resize textarea
+    document.querySelector('.message-input').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+</script>
+
+{% endblock %} 

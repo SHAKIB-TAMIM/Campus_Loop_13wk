@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Inbox - Campus Loop{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="bi bi-inbox me-2"></i>Messages
+                </h2>
+                <span class="badge bg-primary fs-6">{{ conversations|length }} conversations</span>
+            </div>
+
+            {% if conversations %}
+                <div class="conversations-list">
+                    {% for conversation in conversations %}
+                        <div class="conversation-card mb-3">
+                            <a href="{% url 'conversation' conversation.other_user.id conversation.item.id %}" class="text-decoration-none">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-3">
+                                                <i class="bi bi-person-circle fs-1 text-primary"></i>
+                                            </div>
+                                            <div class="conversation-details">
+                                                <h6 class="mb-1 text-dark">
+                                                    {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
+                                                    {% if conversation.unread_count > 0 %}
+                                                        <span class="badge bg-danger ms-2">{{ conversation.unread_count }}</span>
+                                                    {% endif %}
+                                                </h6>
+                                                {% if conversation.item %}
+                                                    <p class="mb-1 text-muted small">
+                                                        <i class="bi bi-tag me-1"></i>{{ conversation.item.title }}
+                                                    </p>
+                                                {% else %}
+                                                    <p class="mb-1 text-muted small">
+                                                        <i class="bi bi-chat me-1"></i>General conversation
+                                                    </p>
+                                                {% endif %}
+                                                <p class="mb-0 text-muted small">
+                                                    {{ conversation.latest_message.content|truncatechars:60 }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <small class="text-muted">
+                                            {% if conversation.latest_message.is_recent %}
+                                                <span class="text-success">
+                                                    <i class="bi bi-clock me-1"></i>{{ conversation.latest_message.timestamp|timesince }} ago
+                                                </span>
+                                            {% else %}
+                                                {{ conversation.latest_message.timestamp|date:"M d, Y" }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-inbox">
+                        <i class="bi bi-inbox display-1 text-muted mb-4"></i>
+                        <h3 class="text-muted mb-3">No messages yet</h3>
+                        <p class="text-muted mb-4">Start a conversation by contacting sellers about items you're interested in.</p>
+                        <a href="{% url 'browse' %}" class="btn btn-primary">
+                            <i class="bi bi-house me-2"></i>Browse Items
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .conversations-list {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .conversation-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .conversation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        border-color: #dee2e6;
+    }
+    
+    .user-avatar {
+        flex-shrink: 0;
+    }
+    
+    .conversation-details {
+        flex-grow: 1;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+    
+    .badge.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    }
+    
+    .empty-inbox {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .empty-inbox i {
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .conversation-card {
+            padding: 1rem;
+        }
+        
+        .conversation-details h6 {
+            font-size: 0.9rem;
+        }
+        
+        .conversation-details p {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+{% endblock %} 

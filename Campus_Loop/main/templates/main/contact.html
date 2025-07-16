@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Contact {% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success mt-3">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+  <!-- Header Section -->
+
+  <section class="header-section text-center text-white py-5">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Contact Us</h1>
+      <p class="lead mb-0">
+        Have questions or feedback? Get in touch with our team.
+      </p>
+    </div>
+  </section>
+
+    <section class="contact-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="contact-info">
+                        <h2>Get In Touch</h2>
+                        <p>Have a question or comment? We'd love to hear from you. Fill out the form or use one of the contact methods below.</p>
+                        
+                        <ul>
+                            <li>
+                                <strong>Address</strong>
+                                University Campus, Academic Building<br>
+                                Sayedpur Kalakochuya, Burichong Cumilla.
+                            </li>
+                            <li>
+                                <strong>Email</strong>
+                                info@campusloop.edu<br>
+                                support@campusloop.edu
+                            </li>
+                            <li>
+                                <strong>Phone</strong>
+                                01997151571<br>
+                                Sunday to Thursday, 8.30am - 5pm
+                            </li>
+                            <li>
+                                <strong>Office Hours</strong>
+                                Sunday-Thursday: 8:30 AM - 5:00 PM<br>
+                                Saturday: 10:00 AM - 2:00 PM<br>
+                                Friday: Closed
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="contact-form">
+                        <h2>Send Us a Message</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.name }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                            {{ form.subject }}
+                            {{ form.message }}
+                            <button type="submit" class="btn btn-submit">Send Message</button>
+                        </form>                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="py-5">
+      <div class="container">
+        <h2 class="text-center fw-bold mb-4">Frequently Asked Questions</h2>
+        <div class="row g-4">
+          
+          <div class="col-md-6">
+            <div class="faq-card h-100 p-4">
+              <h5 class="fw-semibold">How does the item exchange work?</h5>
+              <p class="mt-2 mb-0">
+                Campus Loop connects buyers and sellers within the university community. List your items for sale and let interested buyers contact you to arrange payment and pickup/delivery.
+              </p>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="faq-card h-100 p-4">
+              <h5 class="fw-semibold">Is there a fee for using Campus Loop?</h5>
+              <p class="mt-2 mb-0">
+                No, Campus Loop is completely free for university students. We believe in making
+                resource sharing and secondhand item exchange accessible to all students
+                without any financial barriers.
+              </p>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="faq-card h-100 p-4">
+              <h5 class="fw-semibold">Can I upload my own study materials?</h5>
+              <p class="mt-2 mb-0">
+                Yes! We encourage students to share their notes, past exam papers, and other
+                academic resources. Simply navigate to the Resources page and use the Upload
+                Resource button.
+              </p>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="faq-card h-100 p-4">
+              <h5 class="fw-semibold">How do I know if the items for sale are in good condition?</h5>
+              <p class="mt-2 mb-0">
+                Sellers are required to provide accurate descriptions and photos of items,
+                including their condition. You can also check seller ratings and reviews
+                from previous transactions.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="faq-card h-100 p-4">
+              <h5 class="fw-semibold">Can I use Campus Loop if I'm not a student?
+              </h5>
+              <p class="mt-2 mb-0">
+                Currently, Campus Loop is designed specifically for university students and requires verification with a valid university email address to register.
+              </p>
+            </div>
+          </div>       
+        </div>
+      </div>
+    </section>
+{% endblock %}

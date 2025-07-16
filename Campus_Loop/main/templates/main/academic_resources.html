@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Academic Resources {% endblock %}
+{% include "navber.html" %}
+{% block content %}
+    <br><br><br>
+    <!-- Academic Hero Section -->
+    <section class="academic-header text-center text-white py-5">
+        <div class="container">
+          <h1 class="display-4 fw-bold">Academic Resources</h1>
+          <p class="lead mb-0">
+            Access and share question papers, notes, study guides and more to help with your courses.
+          </p>
+        </div>
+    </section>
+
+    <!-- Resources Categories -->
+    <section class="resource-categories py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 resource-card">
+                        <div class="card-body text-center">
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Lecture Notes</h5>
+                            <p class="card-text">Notes from various courses.</p>
+                            <a href="{% url 'browse_lecture_notes' %}" class="btn btn-outline-primary">Browse Notes</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 resource-card">
+                        <div class="card-body text-center">
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                                <i class="fas fa-file-alt fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Past Papers</h5>
+                            <p class="card-text">Collection of previous exam papers.</p>
+                            <a href="{% url 'browse_question_papers' %}" class="btn btn-outline-primary">Browse Papers</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 resource-card">
+                        <div class="card-body text-center">
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                                <i class="fas fa-laptop-code fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Online Courses</h5>
+                            <p class="card-text">Recommended online courses and tutorials.</p>
+                            <a href="#courses" class="btn btn-outline-primary">Browse Courses</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 resource-card">
+                        <div class="card-body text-center">
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Study Guides</h5>
+                            <p class="card-text">Study tips and guides for various subjects.</p>
+                            <a href="{% url 'browse_study_guides' %}" class="btn btn-outline-primary">Browse Guides</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Online Courses Section -->
+    <section id="courses" class="courses-section py-5 bg-light">
+        <div class="container">
+            <h2 class="mb-4">Recommended Online Courses</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="{% static 'main/images/py.jpeg' %}" class="img-fluid rounded-start h-100" alt="Course Image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Introduction to Python</h5>
+                                    <p class="card-text">Free course covering Python basics from Coursers.</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge upl">Programming</span>
+                                        <small class="text-muted">Free</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.youtube.com/watch?v=t2_Q2BRzeEE&list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0" class="btn btn-sm btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="{% static 'main/images/mhn.jpeg' %}" class="img-fluid rounded-start h-100" alt="Course Image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Machine Learning</h5>
+                                    <p class="card-text">Stanford's famous ML course by Andrew Ng.</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge upl">AI</span>
+                                        <small class="text-muted">Free</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.youtube.com/watch?v=jGwO_UgTS7I&list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU" class="btn btn-sm btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="{% static 'main/images/js.jpeg' %}" class="img-fluid rounded-start h-100" alt="Course Image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Java Scripts</h5>
+                                    <p class="card-text">Versatile scripting language for web development and beyond.</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge upl">Web Development</span>
+                                        <small class="text-muted">Free</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.youtube.com/watch?v=ajdRvxDWH4w&list=PLGjplNEQ1it_oTvuLRNqXfz_v_0pq6unW" class="btn btn-sm btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="{% static 'main/images/ds.jpeg' %}" class="img-fluid rounded-start h-100" alt="Course Image">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Data Science</h5>
+                                    <p class="card-text">Data Science course by Edureka.</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge upl"></span>
+                                        <small class="text-muted">Free</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <a href="https://www.youtube.com/watch?v=-ETQ97mXXF0" class="btn btn-sm btn-primary">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-outline-secondary">View All Courses</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Resources Section -->
+    <section class="upload-resources py-5  text-white upl">
+        <div class="container text-center">
+            <h2 class="mb-4">Share Your Resources</h2>
+            <p class="lead mb-5">Help your fellow students by sharing your notes, past papers, or other study materials.</p>
+            {% comment %} <button class="btn btn-light btn-lg">Upload Resources</button> {% endcomment %}
+            <a href="{% url 'upload' %}" class="btn btn-light btn-lg">Upload</a>
+        </div>
+    </section>
+    <br>
+    
+    <style>
+        .resource-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .file-type-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(3, 169, 244, 0.1);
+        }
+        
+        .resource-details {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .detail-item {
+            padding: 8px 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .detail-item:hover {
+            background-color: rgba(3, 169, 244, 0.1);
+        }
+        
+        .resource-stats {
+            padding: 12px 0;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .stat-item i {
+            font-size: 1rem;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #009acd 0%, #007acc 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(3, 169, 244, 0.4);
+        }
+        
+        .btn-outline-primary {
+            color: #03a9f4;
+            border: 2px solid #03a9f4;
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+            border-color: #03a9f4;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+        }
+        
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%) !important;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+        
+        .card-text {
+            line-height: 1.5;
+            color: #6c757d;
+        }
+        
+        .text-primary {
+            color: #03a9f4 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .file-type-icon {
+                font-size: 1.5rem;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+{% endblock content %}

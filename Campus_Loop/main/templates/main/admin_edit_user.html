@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Edit User - Admin{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> Edit User</h4>
+                </div>
+                <div class="card-body">
+                    {% if profile_form.errors %}
+                        <div class="alert alert-danger">
+                            <h6>Please correct the following errors:</h6>
+                            {{ profile_form.errors }}
+                        </div>
+                    {% endif %}
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" value="{{ edit_user.username }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Is Admin?</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_staff" id="is_staff" {% if edit_user.is_staff %}checked{% endif %}>
+                                <label class="form-check-label" for="is_staff">Staff/Admin</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5 class="mb-3">Profile Information</h5>
+                        {{ profile_form.as_p }}
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'admin_manage_users' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Users
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,618 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Upload Academic Resources - CampusLoop{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+
+<!-- Upload Hero Section -->
+<section class="academic-header text-center text-white py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Share Your Knowledge</h1>
+        <p class="lead mb-0">
+            Upload lecture notes, study guides, and course materials to help fellow students
+        </p>
+    </div>
+</section>
+
+<div class="upload-container">
+    
+    <!-- Success Message -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="upload-card card">
+        <div class="card-header text-white">
+            <h2 class="card-title"><i class="bi bi-cloud-arrow-up me-2"></i>Upload New Resource</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="resource-form">
+                {% csrf_token %}
+                
+                <!-- Title Field -->
+                <div class="mb-4">
+                    <label for="{{ form.title.id_for_label }}" class="form-label required">Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.title.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">Make your title descriptive so others can find it easily</div>
+                </div>
+                
+                <!-- Resource Type Field -->
+                <div class="mb-4">
+                    <label for="{{ form.resource_type.id_for_label }}" class="form-label required">Resource Type</label>
+                    {{ form.resource_type }}
+                    {% if form.resource_type.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.resource_type.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Department Field -->
+                <div class="mb-4">
+                    <label for="{{ form.department.id_for_label }}" class="form-label required">Department</label>
+                    {{ form.department }}
+                    {% if form.department.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.department.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Course Field -->
+                <div class="mb-4">
+                    <label for="{{ form.course.id_for_label }}" class="form-label required">Course</label>
+                    {{ form.course }}
+                    {% if form.course.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.course.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Semester -->
+                <div class="mb-4">
+                    <label for="{{ form.semester.id_for_label }}" class="form-label required">Level & Term</label>
+                    {{ form.semester }}
+                    {% if form.semester.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.semester.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">Select the appropriate level and term for your resource</div>
+                </div>
+                
+                <!-- Description -->
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.description.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- File Upload -->
+                <div class="mb-4">
+                    <label for="{{ form.file.id_for_label }}" class="form-label required">Resource File</label>
+                    <div class="file-upload-area" id="drop-area">
+                        <div class="file-upload-icon">
+                            <i class="bi bi-file-earmark-arrow-up"></i>
+                        </div>
+                        <h5>Drag & Drop your file here</h5>
+                        <p class="text-muted">or click to browse</p>
+                        {{ form.file }}
+                    </div>
+                    {% if form.file.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.file.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        Supported formats: PDF, DOC/DOCX, PPT/PPTX, TXT, JPG, PNG (Max size: 10MB)
+                    </div>
+                    
+                    <!-- File Preview -->
+                    <div class="file-preview" id="file-preview">
+                        <div class="preview-item">
+                            <i class="bi bi-file-earmark preview-icon" id="file-icon"></i>
+                            <div class="preview-info">
+                                <div class="preview-name" id="preview-name"></div>
+                                <div class="preview-size" id="preview-size"></div>
+                            </div>
+                            <button type="button" class="remove-btn" id="remove-file">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-upload">
+                        <i class="bi bi-cloud-arrow-up me-2"></i>Upload Resource
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="mt-5">
+        <h3 class="text-center mb-4">Why Share Your Resources?</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <h5>Help Fellow Students</h5>
+                        <p class="mb-0">Your notes could be exactly what someone else needs to succeed.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <div>
+                        <h5>Build Community</h5>
+                        <p class="mb-0">Contribute to a collaborative learning environment on campus.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <h5>Quality Assured</h5>
+                        <p class="mb-0">All uploads are reviewed to ensure quality and relevance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+    /* Academic Resources Page Color Scheme */
+    .academic-header {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .academic-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .academic-header .container {
+        position: relative;
+        z-index: 1;
+        }
+        
+        .upload-container {
+            max-width: 800px;
+            margin: 40px auto;
+        padding: 0 20px;
+        }
+        
+        .upload-card {
+        border-radius: 15px;
+            overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+        transition: all 0.3s ease;
+        background: white;
+        }
+        
+        .upload-card:hover {
+            transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+            padding: 25px 30px;
+            border-bottom: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.2;
+        }
+        
+        .card-title {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin: 0;
+        position: relative;
+        z-index: 1;
+        }
+        
+        .card-body {
+            padding: 30px;
+        background: white;
+        }
+        
+        .form-label {
+            font-weight: 600;
+        color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .required:after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 4px;
+        }
+        
+    .form-control, .form-select {
+        border-radius: 8px;
+            padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+        border-color: #03a9f4;
+        box-shadow: 0 0 0 0.2rem rgba(3, 169, 244, 0.15);
+        }
+        
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+        
+        .file-upload-area {
+        border: 2px dashed #03a9f4;
+        border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        background: linear-gradient(135deg, rgba(3, 169, 244, 0.05) 0%, rgba(3, 169, 244, 0.1) 100%);
+        transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        position: relative;
+        }
+        
+        .file-upload-area:hover {
+        border-color: #009acd;
+        background: linear-gradient(135deg, rgba(3, 169, 244, 0.1) 0%, rgba(3, 169, 244, 0.15) 100%);
+        transform: translateY(-2px);
+    }
+    
+    .file-upload-area input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        }
+        
+        .file-upload-icon {
+            font-size: 3rem;
+        color: #03a9f4;
+            margin-bottom: 15px;
+        }
+        
+        .btn-upload {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+            border: none;
+        border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+        }
+        
+        .btn-upload:hover {
+        background: linear-gradient(135deg, #009acd 0%, #007acc 100%);
+            transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(3, 169, 244, 0.4);
+        color: white;
+        }
+        
+        .btn-upload:active {
+            transform: translateY(0);
+        }
+        
+        .file-preview {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .preview-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        }
+        
+        .preview-icon {
+            font-size: 1.8rem;
+        color: #03a9f4;
+            margin-right: 15px;
+        }
+        
+        .preview-info {
+            flex-grow: 1;
+        }
+        
+        .preview-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        color: #2c3e50;
+        }
+        
+        .preview-size {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .remove-btn:hover {
+        color: #c82333;
+        }
+        
+        .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(3, 169, 244, 0.1) 0%, rgba(3, 169, 244, 0.2) 100%);
+        border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        color: #03a9f4;
+            font-size: 1.5rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        padding: 20px;
+            background: white;
+            border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .feature-item h5 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .feature-item p {
+        color: #6c757d;
+        margin: 0;
+        }
+        
+        .alert-success {
+        background: linear-gradient(135deg, #03a9f4 0%, #009acd 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .alert-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+    
+    .alert-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 20px;
+            }
+            
+            .card-header {
+                padding: 20px;
+            }
+            
+            .file-upload-area {
+                padding: 20px;
+            }
+        
+        .feature-item {
+            padding: 15px;
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('drop-area');
+        const fileInput = document.querySelector('input[type="file"]');
+            const filePreview = document.getElementById('file-preview');
+            const removeBtn = document.getElementById('remove-file');
+        const form = document.getElementById('resource-form');
+            
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    showFilePreview(this.files[0]);
+                }
+            });
+            
+            // Handle drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+            dropArea.style.borderColor = '#03a9f4';
+            dropArea.style.backgroundColor = 'rgba(3, 169, 244, 0.1)';
+            }
+            
+            function unhighlight() {
+            dropArea.style.borderColor = '#03a9f4';
+            dropArea.style.backgroundColor = 'linear-gradient(135deg, rgba(3, 169, 244, 0.05) 0%, rgba(3, 169, 244, 0.1) 100%)';
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    showFilePreview(files[0]);
+                    fileInput.files = files; // Set the file input to the dropped file
+                }
+            }
+            
+            // Show file preview
+            function showFilePreview(file) {
+                const previewName = document.getElementById('preview-name');
+                const previewSize = document.getElementById('preview-size');
+                const previewIcon = document.getElementById('file-icon');
+                
+                // Set file name
+                previewName.textContent = file.name;
+                
+                // Set file size
+                const fileSize = (file.size / (1024 * 1024)).toFixed(1);
+                previewSize.textContent = fileSize + ' MB';
+                
+                // Set icon based on file type
+                const fileType = file.name.split('.').pop().toLowerCase();
+                let iconClass = 'bi-file-earmark';
+                
+                if (fileType === 'pdf') iconClass = 'bi-file-earmark-pdf';
+                else if (['doc', 'docx'].includes(fileType)) iconClass = 'bi-file-earmark-word';
+                else if (['ppt', 'pptx'].includes(fileType)) iconClass = 'bi-file-earmark-ppt';
+                else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) iconClass = 'bi-file-earmark-image';
+                else if (['txt'].includes(fileType)) iconClass = 'bi-file-earmark-text';
+                
+                previewIcon.className = 'bi ' + iconClass + ' preview-icon';
+                
+                // Show preview
+                filePreview.style.display = 'block';
+                
+                // Show drop area text again
+                dropArea.querySelector('h5').textContent = 'File selected';
+                dropArea.querySelector('p').textContent = 'Drag & drop to replace file';
+            }
+            
+            // Remove file
+            removeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fileInput.value = '';
+                filePreview.style.display = 'none';
+                dropArea.querySelector('h5').textContent = 'Drag & Drop your file here';
+                dropArea.querySelector('p').textContent = 'or click to browse';
+            });
+        });
+    </script>
+{% endblock content %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Users - Admin{% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0"><i class="bi bi-people"></i> All Users</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Full Name</th>
+                                    <th>Is Staff</th>
+                                    <th>Last Login</th>
+                                    <th>ID Card</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.get_full_name }}</td>
+                                    <td>{% if user.is_staff %}<span class="badge bg-success">Admin</span>{% else %}<span class="badge bg-secondary">User</span>{% endif %}</td>
+                                    <td>{{ user.last_login|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        {% if user.profile.id_card %}
+                                            <a href="{{ user.profile.id_card.url }}" target="_blank">
+                                                <img src="{{ user.profile.id_card.url }}" alt="ID Card" style="max-width:60px; max-height:40px; border-radius:4px; border:1px solid #eee;">
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted small">No ID</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'admin_edit_user' user.id %}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

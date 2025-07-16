@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+DEBUG: {{ items|length }} items loaded
+{% load static %}
+{% block title %} Browse Items {% endblock %}
+{% include "navber.html" %}
+{% block content %}
+<br><br><br>
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success mt-3">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+<div class="browse-container">
+  <!-- Hero Section -->
+  <div class="browse-hero">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h1 class="browse-title">
+            {% if search_query %}
+              Search Results for "{{ search_query }}"
+            {% else %}
+              Discover Amazing Items
+            {% endif %}
+          </h1>
+          <p class="browse-subtitle">
+            {% if search_query %}
+              Found {{ items|length }} item{{ items|length|pluralize }} matching your search
+            {% else %}
+              Browse through a curated collection of quality items from your campus community
+            {% endif %}
+          </p>
+        </div>
+        <div class="col-lg-4 text-end">
+          <div class="stats-card">
+            <div class="stats-number">{{ items|length }}</div>
+            <div class="stats-label">Items Available</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="container">
+      <div class="search-container" style="position: relative;">
+        <form method="get" action="{% url 'browse' %}" class="d-flex w-100">
+          <div class="search-icon">
+            <i class="bi bi-search"></i>
+          </div>
+          <input
+            type="text"
+            name="q"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search items by title, category, or description..."
+            value="{{ search_query|default:'' }}"
+            autocomplete="off"
+          >
+          <button type="submit" class="btn btn-primary ms-2 px-4" style="border-radius: 50px;">
+            <i class="bi bi-search"></i>
+            <span class="d-none d-md-inline">Search</span>
+          </button>
+        </form>
+        <div id="searchSuggestions" class="autocomplete-suggestions" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Grid -->
+  <div class="items-section">
+    <div class="container">
+      <div class="row" id="itemList">
+        {% for item in items %}
+        <div class="col-lg-4 col-md-6 mb-4 item" id="item-{{ item.id }}">
+          <div class="item-card">
+            <div class="item-image-container">
+              {% if item.image %}
+                <img src="{{ item.image.url }}" class="item-image" alt="{{ item.title }}">
+              {% else %}
+                <img src="{% static 'main/images/banner.png' %}" class="item-image" alt="No Image">
+              {% endif %}
+              <div class="item-overlay">
+                <div class="item-category-badge">{{ item.category }}</div>
+                <div class="item-condition-badge">{{ item.condition }}</div>
+              </div>
+            </div>
+            
+            <div class="item-content">
+              <div class="item-header">
+                <h5 class="item-title">{{ item.title }}</h5>
+                <div class="item-price">৳{{ item.price }}</div>
+              </div>
+              
+              <p class="item-description">{{ item.description|truncatewords:15 }}</p>
+              
+              <div class="item-meta">
+                <span class="item-seller">
+                  <i class="bi bi-person-circle"></i>
+                  {{ item.user.username }}
+                </span>
+                <span class="item-date">
+                  <i class="bi bi-calendar3"></i>
+                  {{ item.created_at|date:"M d, Y" }}
+                </span>
+              </div>
+              
+              <div class="item-actions">
+                {% if user.is_authenticated and user != item.user %}
+                  {% if item.booking_status %}
+                    {% if item.booking_status == 'pending' %}
+                      <button class="btn btn-warning btn-book" disabled>
+                        <i class="bi bi-clock"></i> Pending Booking
+                      </button>
+                      <small class="text-muted d-block mt-1">Booked by {{ item.booked_by.get_full_name|default:item.booked_by.username }}</small>
+                    {% elif item.booking_status == 'accepted' %}
+                      <button class="btn btn-success btn-book" disabled>
+                        <i class="bi bi-check-circle"></i> Sold
+                      </button>
+                      <small class="text-muted d-block mt-1">Sold to {{ item.booked_by.get_full_name|default:item.booked_by.username }}</small>
+                    {% endif %}
+                  {% else %}
+                    <a href="{% url 'book_item' item.id %}" class="btn btn-primary btn-book">
+                      <i class="bi bi-cart-plus"></i> Book Now
+                    </a>
+                  {% endif %}
+                {% elif user.is_authenticated and user == item.user %}
+                  <button class="btn btn-secondary btn-own-item" disabled>
+                    <i class="bi bi-person-check"></i> Your Item
+                  </button>
+                {% else %}
+                  <a href="{% url 'login' %}" class="btn btn-outline-primary btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i> Login to Book
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-search"></i>
+            </div>
+            <h3>No Items Found</h3>
+            <p>{% if search_query %}No items match your search criteria. Try different keywords.{% else %}No items are available at the moment. Check back later!{% endif %}</p>
+            {% if search_query %}
+              <button class="btn btn-primary" onclick="clearSearch()">
+                <i class="bi bi-arrow-left"></i> Back to All Items
+              </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.browse-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.browse-hero {
+  background: linear-gradient(135deg, #5096e1 0%, #4a90e2 100%);
+  color: white;
+  padding: 60px 0 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.browse-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.browse-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.browse-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+.stats-card {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.stats-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stats-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Search Section */
+.search-section {
+  background: white;
+  padding: 30px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 10;
+}
+
+.search-container {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 1.2rem;
+  z-index: 2;
+}
+
+.search-input {
+  flex: 1;
+  padding: 15px 20px 15px 50px;
+  border: 2px solid #e9ecef;
+  border-radius: 50px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #5096e1;
+  box-shadow: 0 0 0 0.2rem rgba(80, 150, 225, 0.25);
+  background: white;
+}
+
+/* Items Section */
+.items-section {
+  padding: 50px 0;
+}
+
+.item-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #f1f3f4;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.item-image-container {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover .item-image {
+  transform: scale(1.05);
+}
+
+.item-overlay {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.item-category-badge, .item-condition-badge {
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.item-content {
+  padding: 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.item-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+  margin-right: 15px;
+}
+
+.item-price {
+  background: #6a7d90;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(123, 154, 186, 0.2);
+}
+
+.item-description {
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.item-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.item-seller, .item-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.item-actions {
+  margin-top: auto;
+}
+
+.btn-book, .btn-own-item, .btn-login {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-book {
+  background: linear-gradient(135deg, #5096e1 0%, #4a90e2 100%);
+  border: none;
+  color: white;
+}
+
+.btn-book:hover {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(80, 150, 225, 0.3);
+  color: white;
+}
+
+.btn-own-item {
+  background: #e9ecef;
+  border: none;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-login {
+  border: 2px solid #5096e1;
+  color: #5096e1;
+  background: transparent;
+}
+
+.btn-login:hover {
+  background: #5096e1;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .browse-title {
+    font-size: 2rem;
+  }
+  
+  .browse-subtitle {
+    font-size: 1rem;
+  }
+  
+  .stats-card {
+    margin-top: 20px;
+  }
+  
+  .search-input {
+    padding: 12px 20px 12px 45px;
+  }
+  
+  .item-content {
+    padding: 20px;
+  }
+  
+  .item-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .item-price {
+    align-self: flex-start;
+  }
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+.autocomplete-suggestion {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f3f4;
+}
+.autocomplete-suggestion:last-child {
+  border-bottom: none;
+}
+.autocomplete-suggestion:hover {
+  background: #f8f9fa;
+}
+</style>
+
+<script>
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  filterItems();
+}
+
+function filterItems() {
+  const input = document.getElementById('searchInput').value.toLowerCase();
+  const items = document.querySelectorAll('.item');
+  
+  items.forEach(item => {
+    const title = item.querySelector('.item-title').textContent.toLowerCase();
+    const description = item.querySelector('.item-description').textContent.toLowerCase();
+    const category = item.querySelector('.item-category-badge').textContent.toLowerCase();
+    
+    if (title.includes(input) || description.includes(input) || category.includes(input)) {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+  
+  // Update empty state visibility
+  const visibleItems = document.querySelectorAll('.item[style="display: block"], .item:not([style*="display"])');
+  const emptyState = document.querySelector('.empty-state');
+  
+  if (visibleItems.length === 0 && input !== '') {
+    if (emptyState) {
+      emptyState.style.display = 'block';
+    }
+  } else {
+    if (emptyState) {
+      emptyState.style.display = 'none';
+    }
+  }
+}
+
+const searchInput = document.getElementById('searchInput');
+const suggestionsBox = document.getElementById('searchSuggestions');
+const form = searchInput.closest('form');
+
+searchInput.addEventListener('input', function() {
+  const query = this.value.trim();
+  if (query.length < 2) {
+    suggestionsBox.innerHTML = '';
+    suggestionsBox.style.display = 'none';
+    return;
+  }
+  fetch(`/search/?q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length === 0) {
+        suggestionsBox.innerHTML = '';
+        suggestionsBox.style.display = 'none';
+        return;
+      }
+      suggestionsBox.innerHTML = data.map(item =>
+        `<div class="autocomplete-suggestion" data-url="${item.url}">${item.title}</div>`
+      ).join('');
+      suggestionsBox.style.display = 'block';
+    });
+});
+
+suggestionsBox.addEventListener('mousedown', function(e) {
+  if (e.target.classList.contains('autocomplete-suggestion')) {
+    window.location.href = e.target.getAttribute('data-url');
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (!form.contains(e.target)) {
+    suggestionsBox.innerHTML = '';
+    suggestionsBox.style.display = 'none';
+  }
+});
+</script>
+
+{% endblock %}
