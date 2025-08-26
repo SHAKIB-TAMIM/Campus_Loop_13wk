@@ -1,6 +1,6 @@
 ## <h1 align="center"> 🎓 Campus Loop </h1>
 
-Campus Loop is a modern, full-stack **Campus Loop**.  
+Campus Loop is a modern, full-stack **University Marketplace & Resource Sharing Platform.**.  
 It empowers students to register and enables to post their item for selling & buying —  all in a beautifully designed, mobile-responsive platform.
 
 🚀 Built with:  
